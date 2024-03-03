@@ -6,6 +6,8 @@ np.random.seed = 1
 num_inst = 100
 num_mem = 40
 
+intervalo = 10
+
 class Proceso:
 
     def __init__(self, name, env, ram, cpu):
@@ -32,6 +34,15 @@ class Proceso:
             with self.cpu.request() as cpu_req: # solicita cpu
                 self.hora_inicio = self.env.now
                 yield cpu_req
+                yield self.env.timeout(1)
+
+                for i in range(min(3, self.instrucciones)): # ejecuta sus instrucciones, el total es el numero de instrucciones, el numero de segundos
+                    if self.instrucciones == 0:
+                        break
+                    else:
+                        self.instrucciones -= 1
+                        print(self.name, self.instrucciones)
+                yield self.env.timeout(np.random.expovariate(1.0 / intervalo))
 
 
     def ram_get(self):
@@ -39,3 +50,7 @@ class Proceso:
 
     def ram_put(self):
         self.ram.put(self.memoria)
+
+def crear_procesos(env, ram, cpu, max_num = 25, freq = 1):
+    for i in range(max_num):
+        print(f"{env.now} -- {i}")
