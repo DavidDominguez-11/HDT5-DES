@@ -1,6 +1,8 @@
 import simpy
 import numpy as np
 
+import csv
+
 np.random.seed = 10
 
 num_inst = np.random.randint(1, 11)
@@ -36,6 +38,7 @@ class Proceso:
         while self.instrucciones > 0: 
             with self.cpu.request() as cpu_req: # solicita cpu
                 self.hora_inicio = self.env.now
+                inicio = self.env.now
                 yield cpu_req
                 yield self.env.timeout(1)
 
@@ -50,7 +53,12 @@ class Proceso:
 
                 # Al finalizar la ejecución, decide el estado siguiente
                 if self.instrucciones == 0:
-                    print(f"{self.env.now} Proceso {self.name} Terminado.")
+                    fin = self.env.now
+                    print(f"{fin} Proceso {self.name} Terminado.")
+
+                    # Escribir al archivo CSV
+                    csv_writer.writerow([self.name, round(inicio,0), round(fin,0)])
+
                 else:
                     io_decision = np.random.randint(1, 3)
                     if io_decision == 1:
@@ -83,6 +91,11 @@ env = simpy.Environment()
 RAM = simpy.Container(env, init=100, capacity=100)
 CPU = simpy.Resource(env, capacity=1)
 
-# Iniciar la simulación
-env.process(crear_procesos(env, RAM, CPU, max_procesos))
-env.run()
+# Agregado: Crear archivo CSV y objeto de escritura
+with open('resultados.csv', mode='w', newline='') as file:
+    csv_writer = csv.writer(file)
+    csv_writer.writerow(['Proceso', 'Inicio', 'Fin'])  # Escribir encabezados
+    
+    # Iniciar la simulación
+    env.process(crear_procesos(env, RAM, CPU, max_procesos))
+    env.run()
