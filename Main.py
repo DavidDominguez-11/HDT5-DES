@@ -8,9 +8,10 @@ np.random.seed = 10
 num_inst = np.random.randint(1, 11)
 num_mem = np.random.randint(1, 11)
 
-intervalo = 10
+intervalo = 5
+max_procesos = 100
 
-max_procesos = 25
+
 
 class Proceso:
 
@@ -57,7 +58,7 @@ class Proceso:
                     print(f"{fin} Proceso {self.name} Terminado.")
 
                     # Escribir al archivo CSV
-                    csv_writer.writerow([self.name, round(inicio,0), round(fin,0)])
+                    csv_writer.writerow([self.name, round(fin,0), round(inicio,0)])
 
                 else:
                     io_decision = np.random.randint(1, 3)
